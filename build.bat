@@ -661,7 +661,7 @@ if "!V_LINK_PARTS[%LINK_CLASSIFIER%]!" EQU "vcs" (
         set L_VCS_TEST_NAME=.hg
         set L_VCS_EXE=!HG_EXE!
         set L_VCS_CMD_CLONE=!HG_EXE! clone "!V_LINK_PARTS[%VCS_CLONEURL%]!" !V_LINK_PARTS[%VCS_NAME%]!
-        set L_VCS_CMD_PULL=!HG_EXE! pull
+        set L_VCS_CMD_PULL=!HG_EXE! pull "!V_LINK_PARTS[%VCS_CLONEURL%]!"
         set L_VCS_CMD_UPDATE=!HG_EXE! update -r "!V_LINK_PARTS[%VCS_REVISION%]!" -C
     ) else if "!V_LINK_PARTS[%VCS_SYSTEM%]!" EQU "git" (
         set L_VCS_DESC=Git
@@ -691,21 +691,23 @@ if "!V_LINK_PARTS[%LINK_CLASSIFIER%]!" EQU "vcs" (
             echo Fetching: [!V_LINK_PARTS[%VCS_NAME%]!] !L_VCS_DESC! repository.
             if not exist "!V_LINK_PARTS[%VCS_NAME%]!" (
                 REM Does not exist, fetch it.
+                echo .. !L_VCS_CMD_CLONE!
                 for /F "usebackq tokens=*" %%i in (`!L_VCS_CMD_CLONE!`) do (
-                    echo .. %L_VCS_EXE%: %%i
+                    echo .. !L_VCS_EXE!: %%i
                 )
                 REM The subsequent VCS update needs to be within the repository directory.
                 cd !V_LINK_PARTS[%VCS_NAME%]!
             ) else (
                 REM The VCS pull and subsequent update needs to be within the repository directory.
+                echo .. !L_VCS_CMD_PULL!
                 cd !V_LINK_PARTS[%VCS_NAME%]!
                 for /F "usebackq tokens=*" %%i in (`!L_VCS_CMD_PULL!`) do (
-                    echo .. %L_VCS_EXE%: %%i
+                    echo .. !L_VCS_EXE!: %%i
                 )
             )
             echo Updating: [!V_LINK_PARTS[%VCS_NAME%]!] !L_VCS_DESC! repository to revision [!V_LINK_PARTS[%VCS_REVISION%]!].
             for /F "usebackq tokens=*" %%i in (`!L_VCS_CMD_UPDATE!`) do (
-                echo .. %L_VCS_EXE%: %%i
+                echo .. !L_VCS_EXE!: %%i
             )
             goto exit_from_internal_function_fetch_dependency
         ) else (
